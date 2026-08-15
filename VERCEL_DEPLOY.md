@@ -29,13 +29,15 @@ Never commit these values to the repository. Configure them in the Vercel dashbo
 
 ## OAuth callback
 
-After receiving the deployed domain, register this callback URL with the Manus OAuth application:
+For this deployment, register this exact callback URL in the Manus OAuth application's allowed redirect URI list:
 
 ```text
-https://YOUR_VERCEL_DOMAIN/api/oauth/callback
+https://bexaai.vercel.app/api/oauth/callback
 ```
 
-Use the same callback URL for the Production domain and the corresponding Preview URL if preview authentication is required.
+The Bexa frontend constructs the callback from `window.location.origin`, so the hostname, HTTPS scheme, path, and trailing path must match exactly. If you later attach a custom domain, add its matching callback separately, for example `https://your-domain.com/api/oauth/callback`. Preview deployments also need their own callback URI if preview authentication is required.
+
+If Manus shows `invalid redirect_uri` or says the domain is not allowed, the code is already generating the correct callback; the fix is to add the exact URI above to the OAuth application's allowlist and then retry login. The public Manus app ID is `aspQDYuno2bVeoBFZKFWPx`.
 
 ## Important compatibility note
 

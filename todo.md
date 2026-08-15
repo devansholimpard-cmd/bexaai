@@ -26,3 +26,6 @@
 
 - [x] Fix production Start Chatting OAuth redirect and authenticated chat entry
 - [x] Validate the production login gate and push the fix to GitHub
+
+- [ ] Resolve Manus OAuth allowed redirect URI for https://bexaai.vercel.app/api/oauth/callback
+- [ ] Sync the OAuth callback guidance to GitHub

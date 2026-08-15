@@ -53,3 +53,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .001ms !important; }
 }
+
+.auth-input { width: 100%; border: 1px solid rgba(255,255,255,.10); border-radius: 0.9rem; background: rgba(255,255,255,.045); color: #f7f8ff; padding: .8rem .9rem; outline: none; transition: border-color 180ms var(--ease-out), background 180ms var(--ease-out), box-shadow 180ms var(--ease-out); }
+.auth-input::placeholder { color: rgba(255,255,255,.28); }
+.auth-input:focus { border-color: rgba(135,174,255,.72); background: rgba(255,255,255,.075); box-shadow: 0 0 0 4px rgba(104,145,255,.12), 0 10px 26px rgba(30,70,160,.12); }

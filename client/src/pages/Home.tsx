@@ -1,5 +1,4 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { startLogin } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { Streamdown } from "streamdown";
 import { useEffect, useRef, useState } from "react";
@@ -38,6 +37,29 @@ function BackgroundArt() {
 
 function Landing({ onLogin, playClick }: { onLogin: () => void; playClick: () => void }) {
   return <main className="relative min-h-screen overflow-hidden"><BackgroundArt /><nav className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-6 py-6 lg:px-10"><div className="flex items-center gap-3"><BrandMark small /><span className="font-display text-xl font-semibold tracking-tight">Bexa<span className="text-[#89b4ff]">.</span></span></div><button onClick={() => { playClick(); onLogin(); }} className="rounded-full border border-white/10 bg-white/[.045] px-4 py-2 text-sm text-white/75 backdrop-blur-xl hover:border-white/20 hover:bg-white/[.08]">Sign in <ChevronRight className="ml-1 inline h-4 w-4" /></button></nav><section className="relative z-10 mx-auto grid min-h-[calc(100vh-96px)] max-w-7xl items-center gap-16 px-6 pb-16 pt-10 lg:grid-cols-[1.02fr_.98fr] lg:px-10 lg:pb-24"><div className="max-w-2xl"><div className="mb-7 inline-flex items-center gap-2 rounded-full border border-[#8eaaff]/20 bg-[#758fff]/10 px-3 py-1.5 text-xs font-medium uppercase tracking-[.22em] text-[#a7c3ff]"><Sparkles className="h-3.5 w-3.5" /> Your sharpest second mind</div><h1 className="font-display text-6xl font-semibold leading-[.96] tracking-[-.07em] text-white sm:text-8xl">Think deeper.<br /><span className="gradient-text">Move sharper.</span></h1><p className="mt-8 max-w-lg text-lg leading-8 text-[#a9afc4]">Bexa is the focused AI space for asking better questions, shaping ideas, and turning messy thoughts into momentum.</p><div className="mt-10 flex flex-wrap items-center gap-4"><button onClick={() => { playClick(); onLogin(); }} className="glow-blue group rounded-2xl bg-gradient-to-r from-[#6f9dff] to-[#9c7cff] px-6 py-3.5 font-semibold text-[#080a14] hover:brightness-110">Start Chatting <ArrowUp className="ml-2 inline h-4 w-4 rotate-45 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" /></button><div className="flex items-center gap-3 text-sm text-white/45"><span className="h-2 w-2 rounded-full bg-[#6effc2] shadow-[0_0_14px_#6effc2]" /> Private by default</div></div><div className="mt-16 grid max-w-xl grid-cols-3 gap-3"><div className="glass rounded-2xl p-4"><p className="font-display text-2xl text-white">∞</p><p className="mt-1 text-xs text-white/45">Ideas to explore</p></div><div className="glass rounded-2xl p-4"><p className="font-display text-2xl text-white">MD</p><p className="mt-1 text-xs text-white/45">Rich answers</p></div><div className="glass rounded-2xl p-4"><p className="font-display text-2xl text-white">24/7</p><p className="mt-1 text-xs text-white/45">Always ready</p></div></div></div><div className="relative hidden min-h-[32rem] lg:block"><div className="animate-float absolute right-10 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full border border-[#86a9ff]/30 bg-[radial-gradient(circle_at_35%_28%,rgba(191,217,255,.76),rgba(90,127,255,.3)_35%,rgba(13,17,43,.9)_70%)] shadow-[0_0_120px_rgba(67,126,255,.3)]" /><div className="absolute right-0 top-24 h-56 w-56 rounded-full bg-[#ff326a]/20 blur-[90px]" /><div className="absolute bottom-14 left-16 h-48 w-48 rounded-full bg-[#735bff]/25 blur-[70px]" /><div className="glass absolute left-0 top-1/2 w-72 -translate-y-1/2 rotate-[-7deg] rounded-3xl p-5 glow-blue"><div className="flex items-center justify-between"><span className="text-xs uppercase tracking-[.18em] text-[#a8c2ff]">Bexa / signal</span><span className="h-2 w-2 rounded-full bg-[#79ffcf]" /></div><div className="mt-8 space-y-3"><div className="h-2 w-4/5 rounded-full bg-white/15" /><div className="h-2 w-3/5 rounded-full bg-white/10" /><div className="h-2 w-2/3 rounded-full bg-gradient-to-r from-[#719dff] to-[#d56cff]" /></div><p className="mt-8 text-sm leading-6 text-white/60">“Clarity is not louder. It is more precise.”</p></div><div className="glass absolute bottom-8 right-3 rounded-2xl p-4 glow-crimson"><WandSparkles className="h-5 w-5 text-[#ff7196]" /><p className="mt-2 text-sm font-medium text-white">Make the next move.</p><p className="mt-1 text-xs text-white/45">One thoughtful prompt away.</p></div></div></section></main>;
+}
+
+function EmailAuthDialog({ open, onClose, playClick }: { open: boolean; onClose: () => void; playClick: () => void }) {
+  const [mode, setMode] = useState<"login" | "register">("login");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const login = trpc.auth.login.useMutation({ onSuccess: () => window.location.reload() });
+  const register = trpc.auth.register.useMutation({ onSuccess: () => window.location.reload() });
+  if (!open) return null;
+  const pending = login.isPending || register.isPending;
+  const submit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    playClick();
+    setError("");
+    if (mode === "login") {
+      login.mutate({ email, password }, { onError: cause => setError(cause.message) });
+    } else {
+      register.mutate({ name, email, password }, { onError: cause => setError(cause.message) });
+    }
+  };
+  return <div className="fixed inset-0 z-50 grid place-items-center bg-[#03040b]/80 p-4 backdrop-blur-xl" role="dialog" aria-modal="true" aria-labelledby="auth-title"><div className="glass glow-blue relative w-full max-w-md rounded-[2rem] p-6 sm:p-8"><button aria-label="Close login" onClick={() => { playClick(); onClose(); }} className="absolute right-5 top-5 rounded-full p-2 text-white/45 hover:bg-white/10 hover:text-white">×</button><div className="mb-7"><div className="mb-4 grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-[#82aaff] via-[#9275ff] to-[#ff638f] shadow-[0_0_28px_rgba(123,126,255,.3)]"><span className="font-display text-xl font-bold text-white">B</span></div><p className="text-xs font-semibold uppercase tracking-[.22em] text-[#a9c1ff]">Bexa access</p><h2 id="auth-title" className="mt-2 font-display text-3xl font-semibold text-white">{mode === "login" ? "Welcome back." : "Create your space."}</h2><p className="mt-2 text-sm leading-6 text-white/45">{mode === "login" ? "Sign in to continue your conversations." : "Make a Bexa account and start thinking sharper."}</p></div><form onSubmit={submit} className="space-y-4">{mode === "register" && <label className="block"><span className="mb-2 block text-xs font-medium text-white/55">Name</span><input value={name} onChange={event => setName(event.target.value)} required autoComplete="name" className="auth-input" placeholder="Your name" /></label>}<label className="block"><span className="mb-2 block text-xs font-medium text-white/55">Email</span><input value={email} onChange={event => setEmail(event.target.value)} required type="email" autoComplete="email" className="auth-input" placeholder="you@example.com" /></label><label className="block"><span className="mb-2 block text-xs font-medium text-white/55">Password</span><input value={password} onChange={event => setPassword(event.target.value)} required minLength={8} type="password" autoComplete={mode === "login" ? "current-password" : "new-password"} className="auth-input" placeholder="At least 8 characters" /></label>{error && <p className="rounded-xl border border-[#ff6d92]/20 bg-[#ff547b]/10 px-3 py-2 text-sm text-[#ff9db4]">{error}</p>}<button disabled={pending} className="glow-blue w-full rounded-xl bg-gradient-to-r from-[#80aaff] to-[#b46aff] px-4 py-3.5 font-semibold text-[#080a14] disabled:opacity-50">{pending ? "Opening your space…" : mode === "login" ? "Log in to Bexa" : "Create Bexa account"}</button></form><button onClick={() => { playClick(); setMode(mode === "login" ? "register" : "login"); setError(""); }} className="mt-5 w-full text-sm text-white/45 hover:text-white">{mode === "login" ? "New here? Create an account" : "Already have an account? Log in"}</button></div></div>;
 }
 
 type Message = { id: number; role: "user" | "assistant"; content: string; createdAt?: Date | string };
@@ -80,8 +102,9 @@ function ChatWorkspace({ user, playClick, onLogout }: { user: NonNullable<Return
 
 export default function Home() {
   const { user, loading, isAuthenticated, logout } = useAuth();
+  const [authOpen, setAuthOpen] = useState(false);
   const playClick = useClickSound();
   if (loading) return <div className="grid min-h-screen place-items-center bg-[#070812]"><div className="flex items-center gap-3 text-sm text-white/45"><div className="h-5 w-5 animate-spin rounded-full border-2 border-white/10 border-t-[#8eacff]" /> Preparing Bexa...</div></div>;
-  if (!isAuthenticated || !user) return <Landing onLogin={() => startLogin()} playClick={playClick} />;
+  if (!isAuthenticated || !user) return <><Landing onLogin={() => setAuthOpen(true)} playClick={playClick} /><EmailAuthDialog open={authOpen} onClose={() => setAuthOpen(false)} playClick={playClick} /></>;
   return <ChatWorkspace user={user} playClick={playClick} onLogout={logout} />;
 }

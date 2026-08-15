@@ -28,4 +28,22 @@
 - [x] Validate the production login gate and push the fix to GitHub
 
 - [ ] Resolve Manus OAuth allowed redirect URI for https://bexaai.vercel.app/api/oauth/callback
-- [ ] Sync the OAuth callback guidance to GitHub
+- [x] Sync the OAuth callback guidance to GitHub
+
+- [ ] Remove Manus OAuth login triggers and callback dependency from Bexa
+- [ ] Implement Google-only OAuth login, callback, session mapping, and logout
+- [ ] Preserve authenticated chat gating and per-user history under Google accounts
+- [ ] Configure Google OAuth secrets and validate the migration
+- [x] Push email/password authentication changes to GitHub
+
+- [x] Confirmed the deployment target changed to Netlify and Google OAuth is not required
+
+- [x] Remove visible Manus name, logo, and user-facing branding from Bexa
+- [x] Create a first-class anime-style Bexa landing page and Get Started CTA
+- [x] Replace the incomplete Manus auth path with email/password login architecture
+- [x] Add Netlify-compatible build configuration and SPA redirects
+- [ ] Validate and sync the redesigned Bexa app for Netlify deployment
+
+- [x] Remove Google OAuth credential requirements and login flow
+- [x] Add secure email/password registration and login flow
+- [x] Add email/password auth UI while preserving Bexa chat access

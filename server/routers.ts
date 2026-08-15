@@ -1,6 +1,10 @@
+import { createHash } from "node:crypto";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { COOKIE_NAME } from "../shared/const";
+import { COOKIE_NAME, ONE_YEAR_MS } from "../shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
+import { hashPassword, normalizeEmail, validatePassword, verifyPassword } from "./_core/password";
+import { createLocalSessionToken } from "./_core/localSession";
 import { invokeLLM } from "./_core/llm";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
@@ -11,6 +15,8 @@ import {
   listConversations,
   listMessages,
   renameConversation,
+  getUserByEmail,
+  upsertUser,
 } from "./db";
 
 const chatInput = z.object({
@@ -22,6 +28,36 @@ export const appRouter = router({
   system: systemRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
+    register: publicProcedure
+      .input(z.object({ name: z.string().trim().min(1).max(120), email: z.string().email().max(320), password: z.string().min(8).max(128) }))
+      .mutation(async ({ ctx, input }) => {
+        const email = normalizeEmail(input.email);
+        if (!validatePassword(input.password)) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Password must be 8–128 characters." });
+        }
+        const existing = await getUserByEmail(email);
+        if (existing?.passwordHash) {
+          throw new TRPCError({ code: "CONFLICT", message: "An account with this email already exists." });
+        }
+        const openId = existing?.openId ?? `email_${createHash("sha256").update(email).digest("hex").slice(0, 48)}`;
+        await upsertUser({ openId, name: input.name, email, passwordHash: await hashPassword(input.password), loginMethod: "email", lastSignedIn: new Date() });
+        const sessionToken = await createLocalSessionToken(openId, input.name);
+        ctx.res.cookie(COOKIE_NAME, sessionToken, { ...getSessionCookieOptions(ctx.req), maxAge: ONE_YEAR_MS });
+        return { success: true } as const;
+      }),
+    login: publicProcedure
+      .input(z.object({ email: z.string().email().max(320), password: z.string().min(1).max(128) }))
+      .mutation(async ({ ctx, input }) => {
+        const email = normalizeEmail(input.email);
+        const user = await getUserByEmail(email);
+        if (!user?.passwordHash || !(await verifyPassword(input.password, user.passwordHash))) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid email or password." });
+        }
+        await upsertUser({ openId: user.openId, lastSignedIn: new Date() });
+        const sessionToken = await createLocalSessionToken(user.openId, user.name ?? email);
+        ctx.res.cookie(COOKIE_NAME, sessionToken, { ...getSessionCookieOptions(ctx.req), maxAge: ONE_YEAR_MS });
+        return { success: true } as const;
+      }),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });

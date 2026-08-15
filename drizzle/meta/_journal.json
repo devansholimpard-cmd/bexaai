@@ -15,6 +15,13 @@
       "when": 1786774551880,
       "tag": "0001_nervous_christian_walker",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1786786797960,
+      "tag": "0002_windy_shape",
+      "breakpoints": true
     }
   ]
 }

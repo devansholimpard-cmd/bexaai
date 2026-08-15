@@ -1,0 +1,87 @@
+import { useAuth } from "@/_core/hooks/useAuth";
+import { startLogin } from "@/const";
+import { trpc } from "@/lib/trpc";
+import { Streamdown } from "streamdown";
+import { useEffect, useRef, useState } from "react";
+import { ArrowUp, ChevronRight, LogOut, Menu, MessageSquarePlus, Sparkles, Volume2, WandSparkles, X } from "lucide-react";
+
+function useClickSound() {
+  const contextRef = useRef<AudioContext | null>(null);
+  return () => {
+    try {
+      const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AudioContextClass) return;
+      const context = contextRef.current ?? new AudioContextClass();
+      contextRef.current = context;
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.type = "sine";
+      oscillator.frequency.setValueAtTime(540, context.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(840, context.currentTime + .055);
+      gain.gain.setValueAtTime(.0001, context.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.055, context.currentTime + .008);
+      gain.gain.exponentialRampToValueAtTime(.0001, context.currentTime + .075);
+      oscillator.connect(gain).connect(context.destination);
+      oscillator.start();
+      oscillator.stop(context.currentTime + .08);
+    } catch { /* Audio is a progressive enhancement. */ }
+  };
+}
+
+function BrandMark({ small = false }: { small?: boolean }) {
+  return <div className={`relative grid place-items-center rounded-2xl bg-gradient-to-br from-[#7aa8ff] via-[#987dff] to-[#ff527f] shadow-[0_0_30px_rgba(124,116,255,.35)] ${small ? "h-9 w-9" : "h-12 w-12"}`}><span className="font-display text-xl font-bold text-white">B</span><span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-[#ff819d] shadow-[0_0_12px_#ff557a]" /></div>;
+}
+
+function BackgroundArt() {
+  return <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden"><div className="absolute -left-40 top-8 h-[32rem] w-[32rem] rounded-full bg-[#315cff]/15 blur-[110px]" /><div className="absolute -right-44 top-28 h-[34rem] w-[34rem] rounded-full bg-[#c51f69]/15 blur-[120px]" /><div className="absolute left-1/2 top-1/2 h-[22rem] w-[22rem] -translate-x-1/2 rounded-full bg-[#7959ff]/10 blur-[100px]" /><div className="absolute inset-0 opacity-[.045]" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.5) 1px, transparent 1px)", backgroundSize: "48px 48px" }} /></div>;
+}
+
+function Landing({ onLogin, playClick }: { onLogin: () => void; playClick: () => void }) {
+  return <main className="relative min-h-screen overflow-hidden"><BackgroundArt /><nav className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-6 py-6 lg:px-10"><div className="flex items-center gap-3"><BrandMark small /><span className="font-display text-xl font-semibold tracking-tight">Bexa<span className="text-[#89b4ff]">.</span></span></div><button onClick={() => { playClick(); onLogin(); }} className="rounded-full border border-white/10 bg-white/[.045] px-4 py-2 text-sm text-white/75 backdrop-blur-xl hover:border-white/20 hover:bg-white/[.08]">Sign in <ChevronRight className="ml-1 inline h-4 w-4" /></button></nav><section className="relative z-10 mx-auto grid min-h-[calc(100vh-96px)] max-w-7xl items-center gap-16 px-6 pb-16 pt-10 lg:grid-cols-[1.02fr_.98fr] lg:px-10 lg:pb-24"><div className="max-w-2xl"><div className="mb-7 inline-flex items-center gap-2 rounded-full border border-[#8eaaff]/20 bg-[#758fff]/10 px-3 py-1.5 text-xs font-medium uppercase tracking-[.22em] text-[#a7c3ff]"><Sparkles className="h-3.5 w-3.5" /> Your sharpest second mind</div><h1 className="font-display text-6xl font-semibold leading-[.96] tracking-[-.07em] text-white sm:text-8xl">Think deeper.<br /><span className="gradient-text">Move sharper.</span></h1><p className="mt-8 max-w-lg text-lg leading-8 text-[#a9afc4]">Bexa is the focused AI space for asking better questions, shaping ideas, and turning messy thoughts into momentum.</p><div className="mt-10 flex flex-wrap items-center gap-4"><button onClick={() => { playClick(); onLogin(); }} className="glow-blue group rounded-2xl bg-gradient-to-r from-[#6f9dff] to-[#9c7cff] px-6 py-3.5 font-semibold text-[#080a14] hover:brightness-110">Start Chatting <ArrowUp className="ml-2 inline h-4 w-4 rotate-45 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" /></button><div className="flex items-center gap-3 text-sm text-white/45"><span className="h-2 w-2 rounded-full bg-[#6effc2] shadow-[0_0_14px_#6effc2]" /> Private by default</div></div><div className="mt-16 grid max-w-xl grid-cols-3 gap-3"><div className="glass rounded-2xl p-4"><p className="font-display text-2xl text-white">∞</p><p className="mt-1 text-xs text-white/45">Ideas to explore</p></div><div className="glass rounded-2xl p-4"><p className="font-display text-2xl text-white">MD</p><p className="mt-1 text-xs text-white/45">Rich answers</p></div><div className="glass rounded-2xl p-4"><p className="font-display text-2xl text-white">24/7</p><p className="mt-1 text-xs text-white/45">Always ready</p></div></div></div><div className="relative hidden min-h-[32rem] lg:block"><div className="animate-float absolute right-10 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full border border-[#86a9ff]/30 bg-[radial-gradient(circle_at_35%_28%,rgba(191,217,255,.76),rgba(90,127,255,.3)_35%,rgba(13,17,43,.9)_70%)] shadow-[0_0_120px_rgba(67,126,255,.3)]" /><div className="absolute right-0 top-24 h-56 w-56 rounded-full bg-[#ff326a]/20 blur-[90px]" /><div className="absolute bottom-14 left-16 h-48 w-48 rounded-full bg-[#735bff]/25 blur-[70px]" /><div className="glass absolute left-0 top-1/2 w-72 -translate-y-1/2 rotate-[-7deg] rounded-3xl p-5 glow-blue"><div className="flex items-center justify-between"><span className="text-xs uppercase tracking-[.18em] text-[#a8c2ff]">Bexa / signal</span><span className="h-2 w-2 rounded-full bg-[#79ffcf]" /></div><div className="mt-8 space-y-3"><div className="h-2 w-4/5 rounded-full bg-white/15" /><div className="h-2 w-3/5 rounded-full bg-white/10" /><div className="h-2 w-2/3 rounded-full bg-gradient-to-r from-[#719dff] to-[#d56cff]" /></div><p className="mt-8 text-sm leading-6 text-white/60">“Clarity is not louder. It is more precise.”</p></div><div className="glass absolute bottom-8 right-3 rounded-2xl p-4 glow-crimson"><WandSparkles className="h-5 w-5 text-[#ff7196]" /><p className="mt-2 text-sm font-medium text-white">Make the next move.</p><p className="mt-1 text-xs text-white/45">One thoughtful prompt away.</p></div></div></section></main>;
+}
+
+type Message = { id: number; role: "user" | "assistant"; content: string; createdAt?: Date | string };
+
+function TypingIndicator() { return <div className="message-in flex items-start gap-3"><div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#7aa8ff] to-[#c35cff]"><span className="font-display font-bold text-white">B</span></div><div className="glass flex items-center gap-1.5 rounded-2xl rounded-tl-sm px-4 py-3"><span className="typing-dot h-1.5 w-1.5 rounded-full bg-[#9ebeff]" /><span className="typing-dot h-1.5 w-1.5 rounded-full bg-[#c39bff]" style={{ animationDelay: ".15s" }} /><span className="typing-dot h-1.5 w-1.5 rounded-full bg-[#ff87a5]" style={{ animationDelay: ".3s" }} /></div></div>; }
+
+function ChatWorkspace({ user, playClick, onLogout }: { user: NonNullable<ReturnType<typeof useAuth>["user"]>; playClick: () => void; onLogout: () => Promise<void> }) {
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [draft, setDraft] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [localMessages, setLocalMessages] = useState<Message[]>([]);
+  const bootstrapped = useRef(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const utils = trpc.useUtils();
+  const conversationsQuery = trpc.chat.conversations.useQuery(undefined, { refetchOnWindowFocus: false });
+  const createConversation = trpc.chat.createConversation.useMutation({ onSuccess: data => { setSelectedId(data.id); utils.chat.conversations.invalidate(); } });
+  const messagesQuery = trpc.chat.messages.useQuery({ conversationId: selectedId ?? 0 }, { enabled: Boolean(selectedId), refetchOnWindowFocus: false });
+  const sendMessage = trpc.chat.send.useMutation({ onSuccess: data => { setLocalMessages(current => [...current, { id: Date.now() + 1, role: "assistant", content: data.answer }]); utils.chat.conversations.invalidate(); } });
+
+  useEffect(() => {
+    if (conversationsQuery.data?.length && selectedId === null) setSelectedId(conversationsQuery.data[0].id);
+    if (!conversationsQuery.isLoading && !conversationsQuery.data?.length && !bootstrapped.current) { bootstrapped.current = true; createConversation.mutate({}); }
+  }, [conversationsQuery.data, conversationsQuery.isLoading, selectedId]);
+  useEffect(() => { setLocalMessages((messagesQuery.data ?? []) as Message[]); }, [messagesQuery.data, selectedId]);
+  useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [localMessages, sendMessage.isPending]);
+
+  const send = () => {
+    playClick();
+    const content = draft.trim();
+    if (!content || !selectedId || sendMessage.isPending) return;
+    setLocalMessages(current => [...current, { id: Date.now(), role: "user", content }]);
+    setDraft("");
+    sendMessage.mutate({ conversationId: selectedId, content });
+  };
+  const newChat = () => { playClick(); createConversation.mutate({}); };
+  const selectedConversation = conversationsQuery.data?.find(item => item.id === selectedId);
+
+  return <div className="relative flex min-h-screen overflow-hidden"><BackgroundArt /><aside className={`${sidebarOpen ? "translate-x-0" : "-translate-x-full"} glass fixed inset-y-0 left-0 z-30 flex w-[292px] flex-col border-l-0 border-y-0 rounded-none transition-transform duration-300 lg:relative lg:translate-x-0`}><div className="flex items-center justify-between px-5 py-5"><div className="flex items-center gap-3"><BrandMark small /><span className="font-display text-lg font-semibold">Bexa<span className="text-[#8eacff]">.</span></span></div><button aria-label="Close sidebar" onClick={() => { playClick(); setSidebarOpen(false); }} className="rounded-lg p-1.5 text-white/45 hover:bg-white/10 lg:hidden"><X className="h-4 w-4" /></button></div><div className="px-4"><button onClick={newChat} className="glow-blue flex w-full items-center justify-center gap-2 rounded-xl bg-white/[.08] px-4 py-3 text-sm font-semibold text-white hover:bg-white/[.12]"><MessageSquarePlus className="h-4 w-4" /> New conversation</button></div><div className="mt-7 flex-1 overflow-y-auto px-3"><p className="px-3 text-[10px] font-semibold uppercase tracking-[.2em] text-white/30">Your space</p><div className="mt-3 space-y-1">{(conversationsQuery.data ?? []).map(conversation => <button key={conversation.id} onClick={() => { playClick(); setSelectedId(conversation.id); }} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm transition-colors ${conversation.id === selectedId ? "bg-white/[.1] text-white" : "text-white/45 hover:bg-white/[.05] hover:text-white/75"}`}><MessageSquarePlus className={`h-4 w-4 shrink-0 ${conversation.id === selectedId ? "text-[#88afff]" : "text-white/30"}`} /><span className="truncate">{conversation.title}</span></button>)}</div></div><div className="border-t border-white/[.08] p-4"><div className="mb-3 flex items-center gap-3 rounded-xl bg-white/[.04] p-3"><div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-[#6f9dff] to-[#d85cff] text-xs font-bold text-white">{(user.name ?? "B").slice(0, 1).toUpperCase()}</div><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium text-white">{user.name ?? "Bexa user"}</p><p className="truncate text-xs text-white/35">{user.email ?? "Authenticated"}</p></div></div><button onClick={() => { playClick(); void onLogout(); }} className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-white/45 hover:bg-[#ff537a]/10 hover:text-[#ff91aa]"><LogOut className="h-4 w-4" /> Log out</button></div></aside><main className="relative z-10 flex min-w-0 flex-1 flex-col"><header className="flex h-[76px] shrink-0 items-center justify-between border-b border-white/[.08] px-4 sm:px-8"><div className="flex items-center gap-3"><button aria-label="Open sidebar" onClick={() => { playClick(); setSidebarOpen(true); }} className="rounded-xl border border-white/10 bg-white/[.04] p-2 text-white/60 hover:bg-white/[.09] lg:hidden"><Menu className="h-5 w-5" /></button><div><p className="font-display text-lg font-semibold text-white">{selectedConversation?.title ?? "Bexa"}</p><p className="text-xs text-white/35">Your focused AI workspace</p></div></div><div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-1.5 text-xs text-white/50"><span className="h-1.5 w-1.5 rounded-full bg-[#6effc2] shadow-[0_0_10px_#6effc2]" /> Bexa is online</div></header><div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-8 sm:px-8"><div className="mx-auto flex max-w-3xl flex-col gap-7">{localMessages.length === 0 && !messagesQuery.isLoading && <div className="flex min-h-[55vh] flex-col items-center justify-center text-center"><div className="animate-pulse-glow mb-6 grid h-20 w-20 place-items-center rounded-[28px] bg-gradient-to-br from-[#6f9dff] via-[#8e72ff] to-[#f45d89] shadow-[0_0_65px_rgba(117,111,255,.35)]"><Sparkles className="h-9 w-9 text-white" /></div><h2 className="font-display text-3xl font-semibold tracking-tight text-white">What are we thinking through?</h2><p className="mt-3 max-w-md text-sm leading-6 text-white/40">Ask Bexa anything. Start with a question, a rough idea, or a problem that needs a sharper angle.</p><div className="mt-7 flex flex-wrap justify-center gap-2"><button onClick={() => { playClick(); setDraft("Help me understand a complex idea in simple terms."); }} className="rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs text-white/55 hover:bg-white/[.08]">Explain something</button><button onClick={() => { playClick(); setDraft("Help me make a clear plan for my next move."); }} className="rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs text-white/55 hover:bg-white/[.08]">Make a plan</button></div></div>}{localMessages.map((message, index) => <div key={message.id} className={`message-in flex items-start gap-3 ${message.role === "user" ? "justify-end" : ""}`} style={{ animationDelay: `${Math.min(index * 35, 180)}ms` }}>{message.role === "assistant" && <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#7aa8ff] to-[#c35cff] shadow-[0_0_20px_rgba(125,126,255,.2)]"><span className="font-display font-bold text-white">B</span></div>}<div className={`${message.role === "user" ? "max-w-[85%] rounded-2xl rounded-tr-sm bg-gradient-to-br from-[#6d92eb] to-[#8e6ce0] px-4 py-3 text-white shadow-[0_10px_30px_rgba(87,92,216,.18)]" : "glass max-w-[88%] rounded-2xl rounded-tl-sm px-5 py-4 text-[#dfe3f3]"}`}><div className="prose prose-invert prose-sm max-w-none leading-7"><Streamdown>{message.content}</Streamdown></div></div></div>)}{sendMessage.isPending && <TypingIndicator />}</div></div><div className="px-4 pb-5 pt-2 sm:px-8"><div className="mx-auto max-w-3xl"><div className="glass glow-blue rounded-2xl p-2"><textarea value={draft} onChange={event => setDraft(event.target.value)} onKeyDown={event => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); send(); } }} rows={1} placeholder="Ask Bexa anything..." className="max-h-40 min-h-[52px] w-full resize-none bg-transparent px-3 py-3 text-sm text-white outline-none placeholder:text-white/30" /><div className="flex items-center justify-between px-2 pb-1"><div className="flex items-center gap-1"><span className="ml-2 hidden text-[11px] text-white/25 sm:block">Shift + Enter for a new line</span></div><div className="flex items-center gap-2"><span className="hidden text-[11px] text-white/25 sm:block"><Volume2 className="mr-1 inline h-3 w-3" /> sound on</span><button aria-label="Send message" onClick={send} disabled={!draft.trim() || sendMessage.isPending} className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-[#80aaff] to-[#b065eb] text-[#080a14] shadow-[0_6px_22px_rgba(116,120,255,.3)] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-35"><ArrowUp className="h-5 w-5" /></button></div></div></div><p className="mt-3 text-center text-[10px] text-white/20">Bexa can make mistakes. Check important information.</p></div></div></main></div>;
+}
+
+export default function Home() {
+  const { user, loading, isAuthenticated, logout } = useAuth();
+  const playClick = useClickSound();
+  if (loading) return <div className="grid min-h-screen place-items-center bg-[#070812]"><div className="flex items-center gap-3 text-sm text-white/45"><div className="h-5 w-5 animate-spin rounded-full border-2 border-white/10 border-t-[#8eacff]" /> Preparing Bexa...</div></div>;
+  if (!isAuthenticated || !user) return <Landing onLogin={() => startLogin()} playClick={playClick} />;
+  return <ChatWorkspace user={user} playClick={playClick} onLogout={logout} />;
+}

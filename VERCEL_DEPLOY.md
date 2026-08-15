@@ -4,7 +4,7 @@ Bexa is configured as a Vercel project with a Vite static frontend and an Expres
 
 ## Deployment
 
-Import the repository into Vercel with the project root set to the repository root. Vercel will read `vercel.json`, run `pnpm build`, publish `dist/public`, route `/api/*` to `api/index.ts`, and route client-side navigation to `index.html`.
+Import the repository into Vercel with the project root set to the repository root. Vercel will read `vercel.json`, run `pnpm build`, publish `dist/public`, route `/api/*` to `api/index.ts`, and route client-side navigation to `index.html`. The config intentionally does not declare a custom `functions.runtime`: Vercel auto-detects Node.js for TypeScript files under `/api`, while `package.json` pins the deployment to supported Node.js `22.x`.
 
 ## Required environment variables
 

@@ -20,3 +20,6 @@
 
 - [x] Push the completed Bexa project to GitHub repository devansholimpard-cmd/bexaai
 - [x] Verify the remote branch and latest commit after upload
+
+- [ ] Fix Vercel function runtime configuration to match current Vercel standards
+- [ ] Validate the corrected Vercel config and push it to devansholimpard-cmd/bexaai

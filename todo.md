@@ -24,5 +24,5 @@
 - [x] Fix Vercel function runtime configuration to match current Vercel standards
 - [x] Validate the corrected Vercel config and push it to devansholimpard-cmd/bexaai
 
-- [ ] Fix production Start Chatting OAuth redirect and authenticated chat entry
-- [ ] Validate the production login gate and push the fix to GitHub
+- [x] Fix production Start Chatting OAuth redirect and authenticated chat entry
+- [x] Validate the production login gate and push the fix to GitHub

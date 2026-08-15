@@ -30,10 +30,10 @@
 - [ ] Resolve Manus OAuth allowed redirect URI for https://bexaai.vercel.app/api/oauth/callback
 - [x] Sync the OAuth callback guidance to GitHub
 
-- [ ] Remove Manus OAuth login triggers and callback dependency from Bexa
-- [ ] Implement Google-only OAuth login, callback, session mapping, and logout
-- [ ] Preserve authenticated chat gating and per-user history under Google accounts
-- [ ] Configure Google OAuth secrets and validate the migration
+- [x] Remove Manus OAuth login triggers and callback dependency from Bexa
+- [x] Superseded Google-only OAuth plan with email/password authentication
+- [x] Preserved authenticated chat gating and per-user chat history under email accounts
+- [x] Superseded Google OAuth secrets with local email/password configuration
 - [x] Push email/password authentication changes to GitHub
 
 - [x] Confirmed the deployment target changed to Netlify and Google OAuth is not required
@@ -42,8 +42,14 @@
 - [x] Create a first-class anime-style Bexa landing page and Get Started CTA
 - [x] Replace the incomplete Manus auth path with email/password login architecture
 - [x] Add Netlify-compatible build configuration and SPA redirects
-- [ ] Validate and sync the redesigned Bexa app for Netlify deployment
+- [x] Validate and sync the redesigned Bexa app for Netlify deployment
 
 - [x] Remove Google OAuth credential requirements and login flow
 - [x] Add secure email/password registration and login flow
 - [x] Add email/password auth UI while preserving Bexa chat access
+
+- [ ] Deploy the email-auth Bexa app to Netlify and verify the live landing, registration, login, protected chat, persistence, and logout flow
+- [ ] Record the final Netlify deployment URL and confirm no OAuth redirect dependency is active
+
+- [x] Upload the latest email-login and Netlify-ready Bexa source directly to devansholimpard-cmd/bexaai
+- [x] Verify the updated main branch and commit on GitHub

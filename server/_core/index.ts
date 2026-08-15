@@ -7,7 +7,6 @@ import { registerOAuthRoutes } from "./oauth";
 import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
-import { serveStatic, setupVite } from "./vite";
 
 export const app = express();
 
@@ -39,6 +38,7 @@ async function findAvailablePort(startPort = 3000): Promise<number> {
 }
 
 export async function configureAppForLocalServer(server: ReturnType<typeof createServer>) {
+  const { serveStatic, setupVite } = await import("./vite");
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
   } else {

@@ -13,8 +13,10 @@ export { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 // with "invalid oauth state". It returns void by design, so there is no URL to
 // stash across renders.
 export const startLogin = () => {
-  const oauthPortalUrl = import.meta.env.VITE_OAUTH_PORTAL_URL;
-  const appId = import.meta.env.VITE_APP_ID;
+  // Vercel builds may omit Manus-provided public VITE_* variables. These are
+  // public OAuth configuration values, not secrets, so keep a real fallback.
+  const oauthPortalUrl = import.meta.env.VITE_OAUTH_PORTAL_URL || "https://manus.im";
+  const appId = import.meta.env.VITE_APP_ID || "aspQDYuno2bVeoBFZKFWPx";
   const redirectUri = `${window.location.origin}/api/oauth/callback`;
 
   const nonce = crypto.randomUUID();
